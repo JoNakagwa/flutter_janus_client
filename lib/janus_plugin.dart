@@ -369,6 +369,15 @@ class JanusPlugin {
     await _disposeMediaStreams();
   }
 
+  /// Stops all tracks in the given stream and disposes of it
+  Future<void> stopAllTracksAndDispose(MediaStream? stream) async {
+    if (stream != null) {
+      stream.getTracks().forEach((track) {
+        track.stop();
+      });
+    }
+  }
+
   Future<void> _disposeMediaStreams(
       {ignoreRemote = false, video = true, audio = true}) async {
     _context._logger
@@ -409,11 +418,6 @@ class JanusPlugin {
       }
       webRTCHandle?.remoteStream = null;
     }
-  }
-
-  Future<void> hangup() async {
-    _cancelPollingTimer();
-    await _disposeMediaStreams();
   }
 
   /// This function takes care of cleaning up all the internal stream controller and timers used to make janus_client compatible with streams and polling support

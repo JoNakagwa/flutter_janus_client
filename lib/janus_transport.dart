@@ -105,14 +105,14 @@ class WebSocketJanusTransport extends JanusTransport {
     }
 
     final completer = Completer<dynamic>();
-    _pendingTransactions[transaction] = completer;
+    _pendingTransactions[data['transaction']] = completer;
 
     sink!.add(stringify(data));
 
     // Optionally add a timeout
     return completer.future.timeout(Duration(seconds: 10), onTimeout: () {
-      _pendingTransactions.remove(transaction);
-      throw TimeoutException('Timed out waiting for transaction $transaction');
+      _pendingTransactions.remove(data['transaction']);
+      throw TimeoutException('Timed out waiting for transaction ${data['transaction']}');
     });
   }
 
