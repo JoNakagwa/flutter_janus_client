@@ -1,4 +1,4 @@
-part of 'janus_client.dart';
+part of janus_client;
 
 abstract class JanusTransport {
   String? url;
@@ -30,9 +30,7 @@ class RestJanusTransport extends JanusTransport {
       suffixUrl = suffixUrl + "/$sessionId/$handleId";
     }
     try {
-      var response =
-          (await http.post(Uri.parse(url! + suffixUrl), body: stringify(body)))
-              .body;
+      var response = (await http.post(Uri.parse(url! + suffixUrl), body: stringify(body))).body;
       return parse(response);
     } on JsonCyclicError {
       return null;
@@ -85,18 +83,11 @@ class WebSocketJanusTransport extends JanusTransport {
   }
 
   /// this method is used to send json payload to Janus Server for communicating the intent.
-  Future<dynamic> send(Map<String, dynamic> data, {int? handleId}) async {
-    if (data['transaction'] != null) {
-      data['session_id'] = sessionId;
-      if (handleId != null) {
-        data['handle_id'] = handleId;
-      }
-      sink!.add(stringify(data));
-      return parse(await stream.firstWhere(
-          (element) => (parse(element)['transaction'] == data['transaction']),
-          orElse: () => {}));
-    } else {
-      throw "transaction key missing in body";
+  Future<dynamic> send(Map<String, dynamic> data, {int? handleId}) {
+    final transaction = data['transaction'];
+
+    if (transaction == null) {
+      throw Exception("transaction key missing in body");
     }
 
     data['session_id'] = sessionId;
@@ -105,14 +96,14 @@ class WebSocketJanusTransport extends JanusTransport {
     }
 
     final completer = Completer<dynamic>();
-    _pendingTransactions[data['transaction']] = completer;
+    _pendingTransactions[transaction] = completer;
 
     sink!.add(stringify(data));
 
     // Optionally add a timeout
     return completer.future.timeout(Duration(seconds: 10), onTimeout: () {
-      _pendingTransactions.remove(data['transaction']);
-      throw TimeoutException('Timed out waiting for transaction ${data['transaction']}');
+      _pendingTransactions.remove(transaction);
+      throw TimeoutException('Timed out waiting for transaction $transaction');
     });
   }
 
@@ -125,18 +116,14 @@ class WebSocketJanusTransport extends JanusTransport {
     String transaction = getUuid().v4();
     payload['transaction'] = transaction;
     payload['janus'] = 'info';
-    sink!.add(stringify(payload));
-    return parse(await stream.firstWhere(
-        (element) => (parse(element)['transaction'] == payload['transaction']),
-        orElse: () => {}));
+    return send(payload);
   }
 
   /// this method is internally called by plugin to establish connection with provided websocket uri.
   void connect() {
     try {
       isConnected = true;
-      channel = WebSocketChannel.connect(Uri.parse(url!),
-          protocols: ['janus-protocol']);
+      channel = WebSocketChannel.connect(Uri.parse(url!), protocols: ['janus-protocol']);
     } catch (e) {
       print(e.toString());
       print('something went wrong');
