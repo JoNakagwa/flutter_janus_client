@@ -1,3 +1,4 @@
+// @dart=3.8
 part of 'janus_client.dart';
 
 class JanusWebRTCHandle {

@@ -1,3 +1,4 @@
+// @dart=3.8
 /// This is a preliminary API providing most WebRTC Operations out of the box using [Janus Server](https://janus.conf.meetecho.com/)
 library janus_client;
 

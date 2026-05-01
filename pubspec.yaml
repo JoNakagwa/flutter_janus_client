@@ -4,13 +4,13 @@ version: 2.3.14
 homepage: https://github.com/shivanshtalwar0/flutter_janus_client
 
 environment:
-  sdk: ">=3.6.0 <4.0.0" # Tightened to match Dart 3.6.0
-  flutter: ">=3.24.0" # Matches Flutter 3.24.4
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.24.0"
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  dartdoc: ^8.1.0 # Downgraded to avoid Dart 3.6.0+ requirement
+  dartdoc: ^8.1.0
 
 dependencies:
   flutter_web_plugins:
